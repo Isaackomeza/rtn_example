@@ -1,6 +1,7 @@
 var express = require ('express');
 var router = express.Router();
 var regionController = require ('../controllers/regionController')
+const { body, validationResult } = require('express-validator');
 
 /*
  * Serve the input form, including data for the first layer (province).
@@ -17,7 +18,13 @@ router.get ('/', (req, res) => {
  * the already specified layers.
  * e.g.: layer: 2, params: ['Kigali', 'Gasabo']
  */
-router.post ('/regions', (req, res) => {
+router.post ('/regions', 
+body().notEmpty(),
+(req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   regionController.getRegionData (req.body.layer, req.body.params, result => {
     res.json (result);
   });
